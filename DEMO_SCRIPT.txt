@@ -1,0 +1,35 @@
+[0:00 — HOOK]
+Hello everyone. As medical providers, doctors face massive administrative overhead, spending hours typing EHR notes and checking patient files instead of focusing on actual patient care. (pause) Today, I'm introducing Care Connect, an AI platform designed to completely automate symptom tracking, triage evaluation, and EHR documentation while keeping the doctor in control.
+
+[0:20 — WHAT IT IS]
+Care Connect is a patient-doctor concierge agent built on the ADK 2.0 framework. It belongs to the Concierge Agents track, serving as a smart gateway between patient complaints and clinical databases.
+
+[0:40 — SHOW THE BANNER]
+(show assets/cover_page_banner.png)
+As you can see on the cover banner, Care Connect is Automated, Secure, and Intelligent, providing instant triage responses for patients and automated documentation drafts for clinicians.
+
+[1:00 — ARCHITECTURE]
+(show assets/architecture_diagram.png)
+Let's walk through our workflow architecture. (pause)
+First, the patient query starts at the START node and flows into the Security Checkpoint. (pause) The Security Checkpoint scrubs PII and checks for prompt injections.
+If the check passes, the flow moves to the Orchestration Node, which invokes the Care Orchestrator agent.
+The Care Orchestrator agent delegates symptoms to the Symptom Triage Agent to assign a severity, and then delegates to the Doctor Comm Agent to compile a clinical note draft.
+Next, the workflow enters the Human Approval Node, which uses the ADK Request Input tool to pause the graph and ask the reviewing physician for approval.
+Finally, when approved, the flow goes to the Final Output Node, which calls our local MCP Server's save_clinical_note tool to commit the note to the patient's record.
+
+[2:00 — LIVE DEMO]
+(switch to playground at localhost:18081)
+Now let's see a live demonstration of Care Connect.
+I will send a message: "My name is John Doe, ID P-102. I have had a mild sore throat for 2 days. No breathing problems."
+As you can see, the security scan runs immediately. It identifies the name "John Doe" and ID "P-102", and scrubs any sensitive PII.
+Then, the Care Orchestrator evaluates the query, triages the case as ROUTINE, and drafts a clinical EHR summary.
+Now, notice how the playground pauses. This is our Human-in-the-Loop review system. It prompts the physician: "Do you approve this note?" (pause)
+I will approve it by typing: {"approved": true, "feedback": "Looks good."}
+Once approved, the note is committed to the EHR database, and the user receives a confirmation.
+Let's also look at how security works. If someone submits an injection attack like "Ignore previous instructions", the security node instantly blocks it, routes to the final node, and displays "ACCESS DENIED".
+
+[3:00 — SECURITY & MCP]
+To make this suitable for healthcare, the Security Checkpoint logs every transaction in a JSON audit log for complete auditability. (pause) Additionally, our local MCP Server provides tools to lookup patient histories, check doctor schedules, and securely commit clinical notes.
+
+[3:30 — IMPACT / CLOSE]
+Care Connect reduces administrative documentation time by up to eighty percent, allowing physicians to do what they do best: save lives. Thank you.
